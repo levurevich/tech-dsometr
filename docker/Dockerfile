@@ -1,6 +1,8 @@
-FROM registry.access.redhat.com/rhscl/python-36-rhel7:latest
+ARG RH_REGISTRY_ARG
+FROM ${RH_REGISTRY_ARG}/rhscl/python-36-rhel7 as base
 
 COPY /src/app.py /app
+COPY ./requirements /app
 
 ARG BUILD_NUMBER_ARG
 

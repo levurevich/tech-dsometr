@@ -1,0 +1,145 @@
+withFolderProperties{
+    BUILD_ENVIRONMENT = "${env.BUILD_ENVIRONMENT}"
+    DEPLOY_ENVIRONMENT = "${env.DEPLOY_ENVIRONMENT}"
+    RH_REGISTRY = "${env.RH_REGISTRY}"
+    RH_REGISTRY_CRED_ID = "${env.RH_REGISTRY_CRED_ID}"
+    REGISTRY = "${env.REGISTRY}"
+    REGISTRY_CRED_ID = "${env.REGISTRY_CRED_ID}"
+    OCP_URL_TARGET = "${env.OCP_URL_TARGET}"
+    OCP_CRED_ID = "${env.OCP_CRED_ID}"
+    OCP_NAMESPACE = "${env.OCP_NAMESPACE}"
+    OCP_APP_NAME = "${env.OCP_APP_NAME}"
+    OCP_APP_BASE_URL = "${env.OCP_APP_BASE_URL}"
+    OCP_IMAGE_STREAM = "${env.OCP_IMAGE_STREAM}"
+    OCP_TEMPLATE_NAME = "${env.OCP_TEMPLATE_NAME}"
+    GIT_BASE_URL = "${env.GIT_BASE_URL}"
+    GIT_CRED_ID = "${env.GIT_CRED_ID}"
+    DOCKER_FILE_NAME = "${env.DOCKER_FILE_NAME}"
+}
+
+if (DEPLOY_ENVIRONMENT == '' || DEPLOY_ENVIRONMENT == null || DEPLOY_ENVIRONMENT == 'null') {
+    currentBuild.result = 'ABORTED'
+    error('Not defined DEPLOY_ENVIRONMENT in Folder properies plugin!')
+}
+if (OCP_APP_NAME == '' || OCP_APP_NAME == null || OCP_APP_NAME == 'null') {
+    currentBuild.result = 'ABORTED'
+    error('Not defined OCP_APP_NAME in Folder properies plugin!')
+}
+
+pipeline {
+    agent {
+        label "${DEPLOY_ENVIRONMENT}"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+    }
+
+    environment {
+        GIT_COMMIT_SHORT = sh(
+            script: "printf \$(git rev-parse --short ${GIT_COMMIT})",
+            returnStdout: true
+        )
+    }
+
+    stages {
+        stage("Set build name") {
+            steps {
+                // use name of the patchset as the build name
+                script {
+                    if ("${params.BRANCH}" == 'null'){
+                        buildName "$BUILD_NUMBER-$GIT_COMMIT_SHORT"
+                    }
+                    else {
+                        buildName "$BUILD_NUMBER-${params.BRANCH}-$GIT_COMMIT_SHORT"
+                    }
+                }
+                //buildName "$BUILD_NUMBER-$GIT_COMMIT_SHORT"
+                buildDescription "Executed @ ${NODE_NAME}"
+            }
+        }
+        stage("OCP login") {
+            steps {
+                echo "=====ocp login====="
+                withCredentials([string(credentialsId: "$OCP_CRED_ID", variable: 'TOKEN')]) {
+                    sh """
+                    oc login $OCP_URL_TARGET --token $TOKEN
+                    """
+                }
+            }
+        }
+        stage("OCP init imagestream and template") {
+            steps {
+                echo "=====ocp login====="
+                    sh """
+                    oc process -f $OCP_IMAGE_STREAM \
+                               -p APP_NAME=$OCP_APP_NAME \
+                               -p NAMESPACE_NAME=$OCP_NAMESPACE \
+                               -p REGISTRY_PATH=$REGISTRY/$OCP_APP_NAME:latest \
+                               -o yaml | oc apply -f -
+                    oc apply -f $OCP_TEMPLATE_NAME
+                    """
+                    /*oc process -f $OCP_TEMPLATE_NAME \
+                               -p APP_NAME=$OCP_APP_NAME \
+                               -p NAMESPACE_NAME=$OCP_NAMESPACE \
+                               -o yaml | oc apply -f -*/
+            }
+        }
+        stage("OCP deploy") {
+            steps {
+                echo "=====ocp tag new image as latest====="
+                    sh """
+                    oc tag $REGISTRY/$OCP_APP_NAME:$GIT_COMMIT_SHORT $OCP_APP_NAME:latest
+                    """
+            }
+        }
+        stage("OCP create new app") {
+            when {
+                not {
+                    expression {
+                        def status = sh(script: "oc get all --selector app=$OCP_APP_NAME | grep Running", returnStatus: true) 
+                        if (status != 0) {
+                            return false;
+                        }
+                        else {
+                            return true;
+                        }
+                    }
+                }
+            }
+            steps {
+                echo "=====ocp create application====="
+                    sh """
+                    oc new-app --template=$OCP_APP_NAME -p APP_NAME=$OCP_APP_NAME \
+                                                        -p NAMESPACE_NAME=$OCP_NAMESPACE
+                    """
+            }
+        }
+        stage("OCP get status") {
+            steps {
+                echo "=====Waiting 15 second to build process catch-up====="
+                sleep(time:15,unit:"SECONDS")
+                /*echo "=====ocp get podes status (must be alive for < 2 minutes)====="
+                    sh """
+                    oc get pods | grep -E "$OCP_APP_NAME.+[1-99]\\/[1-99]\\s+Running\\s+[0-99]\\s+([1-9]s|[1-9][1-9]s|1m)"
+                    """
+                */
+                echo "=====ocp get rollout status====="
+                    sh """
+                    oc rollout status dc/$OCP_APP_NAME | grep "successfully rolled out"
+                    """
+                
+            }
+        }
+        /*stage("Application check") {
+            steps {
+                retry (3) {
+                    echo "=====getting application status====="
+                        sh """
+                        curl -v --silent https://${OCP_APP_NAME}-${OCP_NAMESPACE}.${OCP_APP_BASE_URL} 2>&1 | grep "Current build number is: ${GIT_COMMIT_SHORT}"
+                        """
+                }
+            }
+        }*/
+    }
+}
