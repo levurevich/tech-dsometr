@@ -1,0 +1,104 @@
+apiVersion: template.openshift.io/v1   
+kind: Template
+labels:
+  app: tech-dsometr-back
+  template: tech-dsometr-back-template
+metadata:
+  annotations:
+    description: tech-dsometr Backend service
+    openshift.io/display-name: tech-dsometr-back
+    openshift.io/provider-display-name: tech-dsometr-back
+    tags: tech-dsometr-back
+  name: tech-dsometr-back
+objects:
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: ${APP_NAME}
+      name: ${APP_NAME}
+      namespace: ${NAMESPACE_NAME}
+    spec:
+      replicas: 1
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          labels:
+            app: ${APP_NAME}
+            deploymentconfig: ${APP_NAME}
+        name: ${APP_NAME}-pod
+        spec:
+          containers:
+            - env:
+              imagePullPolicy: Always
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /
+                  port: 5000
+                  scheme: HTTP
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              name: ${APP_NAME}
+              ports:
+                - containerPort: 5000
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /
+                  port: 5000
+                  scheme: HTTP
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              resources: 
+                limits:
+                  cpu: "100m"
+                  memory: "256Mi"
+                requests:
+                  cpu: "100m"
+                  memory: "256Mi"
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - ${APP_NAME}
+            from:
+              kind: ImageStreamTag
+              name: '${APP_NAME}:latest'
+              namespace: ${NAMESPACE_NAME}
+          type: ImageChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        app: ${APP_NAME}
+    spec:
+      type: ClusterIP
+      ports:
+      - port: 5000
+        protocol: TCP
+        targetPort: 5000
+      selector:
+        app: ${APP_NAME}
+parameters:
+- name: APP_NAME
+- name: NAMESPACE_NAME

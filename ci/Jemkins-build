@@ -1,0 +1,88 @@
+withFolderProperties{
+    BUILD_ENVIRONMENT = "${env.BUILD_ENVIRONMENT}"
+    RH_REGISTRY = "${env.RH_REGISTRY}"
+    RH_REGISTRY_CRED_ID = "${env.RH_REGISTRY_CRED_ID}"
+    REGISTRY = "${env.REGISTRY}"
+    REGISTRY_CRED_ID = "${env.REGISTRY_CRED_ID}"
+    DOCKER_FILE_NAME = "${env.DOCKER_FILE_NAME}"
+    OCP_APP_NAME = "${env.OCP_APP_NAME}"
+}
+
+if (BUILD_ENVIRONMENT == '' || BUILD_ENVIRONMENT == null || BUILD_ENVIRONMENT == 'null') {
+    currentBuild.result = 'ABORTED'
+    error('Not defined BUILD_ENVIRONMENT in Folder properies plugin!')
+}
+if (OCP_APP_NAME == '' || OCP_APP_NAME == null || OCP_APP_NAME == 'null') {
+    currentBuild.result = 'ABORTED'
+    error('Not defined OCP_APP_NAME in Folder properies plugin!')
+}
+
+pipeline {
+    agent {
+        label "${BUILD_ENVIRONMENT}"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+    }
+
+    environment {
+        GIT_COMMIT_SHORT = sh(
+            script: "printf \$(git rev-parse --short ${GIT_COMMIT})",
+            returnStdout: true
+        )
+    }
+
+    stages {
+        stage("Set build name") {
+            steps {
+                // use name of the patchset as the build name
+                script {
+                    if ("${params.BRANCH}" == 'null'){
+                        buildName "$BUILD_NUMBER-$GIT_COMMIT_SHORT"
+                    }
+                    else {
+                        buildName "$BUILD_NUMBER-${params.BRANCH}-$GIT_COMMIT_SHORT"
+                    }
+                }
+                //buildName "$BUILD_NUMBER-$GIT_COMMIT_SHORT"
+                buildDescription "Executed @ ${NODE_NAME}"
+            }
+        }
+
+        stage("Docker registry login") {
+            steps {
+                echo "=====docker login registry====="
+                withCredentials([usernamePassword(credentialsId: "$REGISTRY_CRED_ID", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh """
+                    docker login $REGISTRY -u $USERNAME -p $PASSWORD
+                    """
+                }
+                withCredentials([usernamePassword(credentialsId: "$RH_REGISTRY_CRED_ID", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh """
+                    docker login $RH_REGISTRY -u $USERNAME -p $PASSWORD
+                    """
+                }
+            }
+        }
+        stage("Docker build image") {
+            steps {
+                echo "=====docker build====="
+                sh """
+                docker build -t $REGISTRY/$OCP_APP_NAME:$GIT_COMMIT_SHORT -f $DOCKER_FILE_NAME \
+                    --build-arg RH_REGISTRY_ARG=${RH_REGISTRY} \
+                    --build-arg BUILD_NUMBER_ARG=$GIT_COMMIT_SHORT \
+                    --build-arg APP_NAME_ARG=$OCP_APP_NAME .
+                """
+            }
+        }
+        stage("Docker push image") {
+            steps {
+                echo "=====docker login and push====="
+                sh """
+                docker push $REGISTRY/$OCP_APP_NAME:$GIT_COMMIT_SHORT
+                """
+            }
+        }
+    }
+}
