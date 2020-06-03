@@ -1,8 +1,7 @@
 ARG RH_REGISTRY_ARG
 FROM ${RH_REGISTRY_ARG}/rhscl/python-36-rhel7 as base
 
-COPY /src/app.py /app
-COPY ./requirements.txt /app
+COPY . /app
 
 ARG BUILD_NUMBER_ARG
 
