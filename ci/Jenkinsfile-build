@@ -6,6 +6,8 @@ withFolderProperties{
     REGISTRY_CRED_ID = "${env.REGISTRY_CRED_ID}"
     DOCKER_FILE_NAME = "${env.DOCKER_FILE_NAME}"
     OCP_APP_NAME = "${env.OCP_APP_NAME}"
+    PYPI_BASE_URL = "${env.PYPI_BASE_URL}"
+    PYPI_PATH_URL = "${env.PYPI_PATH_URL}"
 }
 
 if (BUILD_ENVIRONMENT == '' || BUILD_ENVIRONMENT == null || BUILD_ENVIRONMENT == 'null') {
@@ -71,7 +73,9 @@ pipeline {
                 sh """
                 docker build -t $REGISTRY/$OCP_APP_NAME:$GIT_COMMIT_SHORT -f $DOCKER_FILE_NAME \
                     --build-arg RH_REGISTRY_ARG=${RH_REGISTRY} \
-                    --build-arg BUILD_NUMBER_ARG=$GIT_COMMIT_SHORT .
+                    --build-arg BUILD_NUMBER_ARG=$GIT_COMMIT_SHORT \
+                    --build-arg PYPI_BASE_URL_ARG=$PYPI_BASE_URL \
+                    --build-arg PYPI_PATH_URL_ARG=$PYPI_PATH_URL .
                 """
             }
         }
