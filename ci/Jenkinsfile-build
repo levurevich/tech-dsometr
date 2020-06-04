@@ -8,6 +8,7 @@ withFolderProperties{
     OCP_APP_NAME = "${env.OCP_APP_NAME}"
     PYPI_BASE_URL = "${env.PYPI_BASE_URL}"
     PYPI_PATH_URL = "${env.PYPI_PATH_URL}"
+    PYPI_TRUSTED_HOST = "${env.PYPI_TRUSTED_HOST}"
 }
 
 if (BUILD_ENVIRONMENT == '' || BUILD_ENVIRONMENT == null || BUILD_ENVIRONMENT == 'null') {
@@ -75,7 +76,8 @@ pipeline {
                     --build-arg RH_REGISTRY_ARG=${RH_REGISTRY} \
                     --build-arg BUILD_NUMBER_ARG=$GIT_COMMIT_SHORT \
                     --build-arg PYPI_BASE_URL_ARG=$PYPI_BASE_URL \
-                    --build-arg PYPI_PATH_URL_ARG=$PYPI_PATH_URL .
+                    --build-arg PYPI_PATH_URL_ARG=$PYPI_PATH_URL \
+                    --build-arg PYPI_TRUSTED_HOST_ARG=$PYPI_TRUSTED_HOST .
                 """
             }
         }
