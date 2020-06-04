@@ -7,10 +7,11 @@ COPY src/app.py /app/
 ARG BUILD_NUMBER_ARG
 ARG PYPI_BASE_URL_ARG
 ARG PYPI_PATH_URL_ARG
+ARG PYPI_TRUSTED_HOST_ARG
 
 WORKDIR /app
 
-RUN pip install --index=http://${PYPI_BASE_URL_ARG}${PYPI_PATH_URL_ARG} --trusted-host ${PYPI_BASE_URL_ARG} -r requirements.txt
+RUN pip install --index=http://${PYPI_BASE_URL_ARG}${PYPI_PATH_URL_ARG} --trusted-host ${PYPI_TRUSTED_HOST_ARG} -r requirements.txt
 
 USER root
 RUN sed -i "s/<build_number>/$BUILD_NUMBER_ARG/g" ./app.py
