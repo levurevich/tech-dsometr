@@ -15,6 +15,7 @@ RUN pip install --index=http://${PYPI_BASE_URL_ARG}${PYPI_PATH_URL_ARG} --truste
 
 USER root
 RUN sed -i "s/<build_number>/$BUILD_NUMBER_ARG/g" ./app.py
+RUN mkdir -p /app/logs
 
 ENTRYPOINT ["python"]
 CMD ["app.py"]
