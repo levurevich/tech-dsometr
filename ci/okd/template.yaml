@@ -117,14 +117,20 @@ objects:
         requests:
           storage: '${LOGS_VOLUME}'
 parameters:
-- name: APP_NAME
-- name: NAMESPACE_NAME
-- description: Volume space available for LOGS
+  - description: Application name
+    displayName: Application name
+    name: APP_NAME
+    value: ""
+  - description: Namespace name
+    displayName: Namespace name
+    name: NAMESPACE_NAME
+    value: ""
+  - description: Volume space available for LOGS
     displayName: LOGS volume capacity
     name: LOGS_VOLUME
     required: true
     value: 2Gi
-- description: App logs directory
+  - description: App logs directory
     displayName: App logs directory
     name: LOG_DIR
     value: /app/logs
