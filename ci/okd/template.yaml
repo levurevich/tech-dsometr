@@ -69,8 +69,15 @@ objects:
                 requests:
                   cpu: "100m"
                   memory: "256Mi"
+              volumeMounts:
+              - mountPath: ${LOG_DIR}
+                name: ${APP_NAME}-logs
           dnsPolicy: ClusterFirst
           restartPolicy: Always
+          volumes:
+            - name: ${APP_NAME}-logs
+              persistentVolumeClaim:
+                claimName: ${APP_NAME}-logs
           schedulerName: default-scheduler
           securityContext: {}
           terminationGracePeriodSeconds: 30
@@ -99,6 +106,25 @@ objects:
         targetPort: 5000
       selector:
         app: ${APP_NAME}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: ${APP_NAME}-logs
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: '${LOGS_VOLUME}'
 parameters:
 - name: APP_NAME
 - name: NAMESPACE_NAME
+- description: Volume space available for LOGS
+    displayName: LOGS volume capacity
+    name: LOGS_VOLUME
+    required: true
+    value: 2Gi
+- description: App logs directory
+    displayName: App logs directory
+    name: LOG_DIR
+    value: /app/logs
