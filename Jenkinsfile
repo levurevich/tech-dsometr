@@ -30,61 +30,51 @@ pipeline {
         }
         stage ("Build dev") {
             steps{
-                build job: "./dev/build", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
+                build job: "./build/dev/build", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
             }
             when {
                 expression {
-                    return params.dev
+                    return params.build-dev
                 }
             }
         }
         stage ("Deploy dev") {
             steps{
-                build job: "./dev/deploy", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
+                build job: "./deploy/dev/deploy", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
             }
             when {
                 expression {
-                    return params.dev
+                    return params.deploy-dev
                 }
             }
         }
-        stage ("Build uat") {
+        stage ("Build trust") {
             steps{
-                build job: "./uat/build", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
+                build job: "./build/trust/build", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
             }
             when {
                 expression {
-                    return params.uat
+                    return params.build-trust
                 }
             }
         }
         stage ("Deploy uat") {
             steps{
-                build job: "./uat/deploy", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
+                build job: "./deploy/uat/deploy", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
             }
             when {
                 expression {
-                    return params.uat
-                }
-            }
-        }
-        stage ("Build PreProd") {
-            steps{
-                build job: "./preprod/build", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
-            }
-            when {
-                expression {
-                    return params.preprod
+                    return params.deploy-uat
                 }
             }
         }
         stage ("Deploy PreProd") {
             steps{
-                build job: "./preprod/deploy", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
+                build job: "./deploy/preprod/deploy", parameters: [[$class: 'StringParameterValue', name: 'BRANCH', value: "$BRANCH"]]
             }
             when {
                 expression {
-                    return params.preprod
+                    return params.deploy-preprod
                 }
             }
         }
