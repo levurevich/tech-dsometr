@@ -34,7 +34,7 @@ pipeline {
             }
             when {
                 expression {
-                    return params.build-dev
+                    return params.build_dev
                 }
             }
         }
@@ -44,7 +44,7 @@ pipeline {
             }
             when {
                 expression {
-                    return params.deploy-dev
+                    return params.deploy_dev
                 }
             }
         }
@@ -54,7 +54,7 @@ pipeline {
             }
             when {
                 expression {
-                    return params.build-trust
+                    return params.build_trust
                 }
             }
         }
@@ -64,7 +64,7 @@ pipeline {
             }
             when {
                 expression {
-                    return params.deploy-uat
+                    return params.deploy_uat
                 }
             }
         }
@@ -74,7 +74,7 @@ pipeline {
             }
             when {
                 expression {
-                    return params.deploy-preprod
+                    return params.deploy_preprod
                 }
             }
         }
