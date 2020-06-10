@@ -37,11 +37,11 @@ pipeline {
     }
 
     stages {
-        stage ("Print env") {
+        /*stage ("Print env") {
             steps {
                 sh 'printenv'
             }
-        }
+        }*/
         stage("Set build name") {
             steps {
                 // use name of the patchset as the build name
@@ -79,7 +79,7 @@ pipeline {
                 sh """
                 docker build -t $REGISTRY/$OCP_APP_NAME:$GIT_COMMIT_SHORT -f $DOCKER_FILE_NAME \
                     --build-arg RH_REGISTRY_ARG=${RH_REGISTRY} \
-                    --build-arg BUILD_NUMBER_ARG=$GIT_COMMIT_SHORT \
+                    --build-arg BUILD_NUMBER_ARG=${env.BUILD_TAG} \
                     --build-arg PYPI_BASE_URL_ARG=$PYPI_BASE_URL \
                     --build-arg PYPI_PATH_URL_ARG=$PYPI_PATH_URL \
                     --build-arg PYPI_TRUSTED_HOST_ARG=$PYPI_TRUSTED_HOST .
