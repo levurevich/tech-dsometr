@@ -38,7 +38,9 @@ pipeline {
 
     stages {
         stage ("Print env") {
-            sh 'printenv'
+            steps {
+                sh 'printenv'
+            }
         }
         stage("Set build name") {
             steps {
