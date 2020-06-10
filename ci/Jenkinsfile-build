@@ -37,6 +37,9 @@ pipeline {
     }
 
     stages {
+        stage ("Print env") {
+            sh 'printenv'
+        }
         stage("Set build name") {
             steps {
                 // use name of the patchset as the build name
