@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def main():
-    return 'Current build number is: <build_number>\n'
+    return 'Current build nume is: <build_number>\n'
 
 if __name__ == '__main__':
     logging.basicConfig(filename='./logs/debug.log', level=logging.DEBUG)
