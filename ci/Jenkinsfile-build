@@ -42,21 +42,7 @@ pipeline {
                 sh 'printenv'
             }
         }*/
-        stage("Set build name") {
-            steps {
-                // use name of the patchset as the build name
-                script {
-                    if ("${params.BRANCH}" == 'null'){
-                        buildName "$BUILD_NUMBER-$GIT_COMMIT_SHORT"
-                    }
-                    else {
-                        buildName "$BUILD_NUMBER-${params.BRANCH}-$GIT_COMMIT_SHORT"
-                    }
-                }
-                //buildName "$BUILD_NUMBER-$GIT_COMMIT_SHORT"
-                buildDescription "Executed @ ${NODE_NAME}"
-            }
-        }
+       
 
         stage("Docker registry login") {
             steps {
