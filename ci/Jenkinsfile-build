@@ -86,13 +86,5 @@ pipeline {
                 """
             }
         }
-        stage("Docker push image") {
-            steps {
-                echo "=====docker login and push====="
-                sh """
-                docker push $REGISTRY/$OCP_APP_NAME:$GIT_COMMIT_SHORT
-                """
-            }
-        }
     }
 }
