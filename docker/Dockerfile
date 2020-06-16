@@ -1,5 +1,5 @@
 ARG RH_REGISTRY_ARG
-FROM registry.access.redhat.com/rhscl/python-36-rhel7:latest
+FROM registry.access.redhat.com/rhscl/python-36-rhel7 as base
 
 COPY docker/requirements.txt /app/
 COPY src/app.py /app/
