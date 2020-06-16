@@ -1,13 +1,9 @@
-ARG RH_REGISTRY_ARG
 FROM registry.access.redhat.com/rhscl/python-36-rhel7 as base
 
 COPY docker/requirements.txt /app/
 COPY src/app.py /app/
 
 ARG BUILD_NUMBER_ARG
-ARG PYPI_BASE_URL_ARG
-ARG PYPI_PATH_URL_ARG
-ARG PYPI_TRUSTED_HOST_ARG
 
 WORKDIR /app
 
