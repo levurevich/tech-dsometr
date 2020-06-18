@@ -7,7 +7,7 @@ ARG BUILD_NUMBER_ARG
 
 WORKDIR /app
 
-RUN pip install --index=http://repos.techpark.local/repository/pypi-proxy/ --trusted-host repos.techpark.local -r requirements.txt
+RUN pip install --index=http://repos.techpark.local/repository/pypi-proxy/simple --trusted-host repos.techpark.local -r requirements.txt
 
 USER root
 RUN sed -i "s/<build_number>/$BUILD_NUMBER_ARG/g" ./app.py
