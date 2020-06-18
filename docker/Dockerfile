@@ -7,7 +7,7 @@ ARG BUILD_NUMBER_ARG
 
 WORKDIR /app
 
-RUN pip install -r requirements.txt
+RUN pip install --proxy http://grishin.van:pF-Fe!D18@10.50.63.3:8080 -r requirements.txt
 
 USER root
 RUN sed -i "s/<build_number>/$BUILD_NUMBER_ARG/g" ./app.py
