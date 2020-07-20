@@ -12,7 +12,7 @@ withFolderProperties{
     RH_REGISTRY_TRUST_CRED_ID = "${env.RH_REGISTRY_TRUST_CRED_ID}" 
     RH_REGISTRY_DEV = "${env.RH_REGISTRY_DEV}"
     RH_REGISTRY_DEV_CRED_ID = "${env.RH_REGISTRY_DEV_CRED_ID}" 
-    DOCKER_FILE_NAME = "${env.DOCKER_FILE_NAME}"
+    DOCKERFILE_NAME = "${env.DOCKERFILE_NAME}"
     PYPI_BASE_URL_TRUST = "${env.PYPI_BASE_URL_TRUST}"
     PYPI_PATH_URL_TRUST = "${env.PYPI_PATH_URL_TRUST}"
     PYPI_TRUSTED_HOST_TRUST = "${env.PYPI_TRUSTED_HOST_TRUST}"
@@ -101,7 +101,7 @@ pipeline {
             steps {
                 echo "=====docker build====="
                 sh """
-                docker build -t $REGISTRY/$OCP_NAMESPACE/$OCP_APP_NAME:$GIT_COMMIT_SHORT -f $DOCKER_FILE_NAME \
+                docker build -t $REGISTRY/$OCP_NAMESPACE/$OCP_APP_NAME:$GIT_COMMIT_SHORT -f $DOCKERFILE_NAME \
                     --build-arg RH_REGISTRY_ARG=${RH_REGISTRY} \
                     --build-arg BUILD_NUMBER_ARG=${env.BUILD_TAG} \
                     --build-arg PYPI_BASE_URL_ARG=$PYPI_BASE_URL \
