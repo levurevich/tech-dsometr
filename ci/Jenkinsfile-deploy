@@ -1,5 +1,6 @@
+#!groovy
+
 withFolderProperties{
-    BUILD_ENVIRONMENT = "${env.BUILD_ENVIRONMENT}"
     DEPLOY_ENVIRONMENT = "${env.DEPLOY_ENVIRONMENT}"
     RH_REGISTRY = "${env.RH_REGISTRY}"
     RH_REGISTRY_CRED_ID = "${env.RH_REGISTRY_CRED_ID}"
