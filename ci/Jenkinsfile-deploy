@@ -22,10 +22,6 @@ if (DEPLOY_ENVIRONMENT == 'dev') {
     REGISTRY = REGISTRY_DEV
 }
 
-if (env.BUILD_USER == '' || env.BUILD_USER == null || env.BUILD_USER == 'null') {
-    env.BUILD_USER = "Jenkins"
-}
-
 pipeline {
     agent {
         label "${DEPLOY_ENVIRONMENT}"
