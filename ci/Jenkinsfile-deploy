@@ -55,7 +55,7 @@ pipeline {
                             buildName "$BUILD_NUMBER-$BUILD_ENVIRONMENT-${params.BRANCH}-$GIT_COMMIT_SHORT"
                         }
                         if (!env.BUILD_USER) {
-                            def BUILD_USER = "Jenkins"
+                            env.BUILD_USER = "Jenkins"
                         }
                     }
                 //buildName "$BUILD_NUMBER-$GIT_COMMIT_SHORT"
