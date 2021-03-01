@@ -14,7 +14,7 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 USER root
-RUN sed -i "!!!!!!!!" ./app.py
+RUN sed  -i "s/<build_number>/qweqweqwe/g" ./app.py
 RUN mkdir -p /app/logs
 RUN chmod 777 /app/logs
 
