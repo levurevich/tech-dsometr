@@ -123,11 +123,7 @@ pipeline {
         }
         stage("OCP get status") {
             steps {
-                /*echo "=====ocp get podes status (must be alive for < 2 minutes)====="
-                    sh """
-                    oc get pods | grep -E "$OCP_APP_NAME.+[1-99]\\/[1-99]\\s+Running\\s+[0-99]\\s+([1-9]s|[1-9][1-9]s|1m)"
-                    """
-                */
+
                 echo "=====ocp get rollout status====="
                     sh """
                     oc rollout status dc/$OCP_APP_NAME | grep "successfully rolled out"
